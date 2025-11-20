@@ -1,0 +1,147 @@
+.reservation-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+.event-details {
+  background-color: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.event-details h2 {
+  color: var(--primary-dark);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.event-image {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+
+.event-info {
+  margin-bottom: 2rem;
+}
+
+.event-info p {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.event-info p:last-child {
+  border-bottom: none;
+}
+
+.event-info strong {
+  color: var(--primary-dark);
+  margin-right: 0.5rem;
+}
+
+.reservation-form {
+  background-color: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+}
+
+.reservation-form h3 {
+  color: var(--primary-dark);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--gray-light);
+  border-radius: var(--radius);
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.25);
+}
+
+.places-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.places-control button {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.places-control input {
+  width: 80px;
+  text-align: center;
+  font-size: 1.25rem;
+}
+
+.total-price {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: right;
+}
+
+.reservation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.reserve-btn {
+  background-color: var(--success);
+  color: white;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+}
+
+.cancel-btn {
+  background-color: var(--gray);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .reservation-container {
+    padding: 1rem;
+  }
+
+  .reservation-actions {
+    flex-direction: column;
+  }
+
+  .reservation-actions button {
+    width: 100%;
+  }
+}

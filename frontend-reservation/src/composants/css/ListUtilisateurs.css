@@ -1,0 +1,113 @@
+.users-management {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.users-management h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--primary-dark);
+}
+
+.search-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.search-controls input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.users-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.user-card {
+  background-color: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  transition: var(--transition);
+}
+
+.user-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+  margin-bottom: 1rem;
+}
+
+.user-info p {
+  margin-bottom: 0.5rem;
+}
+
+.user-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.role-badge {
+  background-color: var(--primary);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+}
+
+.role-badge.admin {
+  background-color: var(--danger);
+}
+
+.role-badge.organizer {
+  background-color: var(--success);
+}
+
+.role-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  align-items: center;
+}
+
+.role-controls select {
+  flex: 1;
+}
+
+.role-controls button {
+  white-space: nowrap;
+}
+
+.remove-role-btn {
+  background-color: var(--danger);
+  color: white;
+}
+
+.add-role-btn {
+  background-color: var(--success);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .users-list {
+    grid-template-columns: 1fr;
+  }
+
+  .role-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .role-controls button {
+    margin-top: 0.5rem;
+  }
+}
