@@ -31,6 +31,7 @@ public class Evenement {
     private String lieu;
 
     private int placesDisp;
+    private String ville ;
 
     @ManyToOne
     @JoinColumn(name = "organisateur_id", nullable = false)
@@ -49,7 +50,7 @@ public class Evenement {
     public Evenement() {
     }
 
-    public Evenement(String titre, String description, LocalDateTime date, String lieu, int placesDisp) {
+    public Evenement(String titre, String description, LocalDateTime date, String lieu, int placesDisp,String ville) {
 
 
         this.titre = titre;
@@ -61,6 +62,8 @@ public class Evenement {
         this.lieu = lieu;
 
         this.placesDisp = placesDisp;
+
+        this.ville = ville;
 
     }
 
@@ -147,6 +150,14 @@ public class Evenement {
         this.reservations = reservations;
 
     }
+
+    public String getVille() {
+        return ville;
+    }
+    public void setVille(String ville) {
+        this.ville = ville;
+    }
+
     public Utilisateur getOrganisateur() {
         return organisateur;
     }

@@ -39,15 +39,13 @@ public class Utilisateur {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Reservation> reservations = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)//fetch le role de utilisateur est donne a le momnet de creation dun user
+    @ManyToMany(fetch = FetchType.EAGER)//fetch le role de utilisateur est donne a le momnet de creation dun user
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "roles_id")
     )
     private Set<Role> roles = new HashSet<>();
-
-
 
     public Utilisateur() {
 

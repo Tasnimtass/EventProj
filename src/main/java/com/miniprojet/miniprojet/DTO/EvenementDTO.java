@@ -13,6 +13,7 @@ public class EvenementDTO {
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime date;
+    private String ville;
 
     private String lieu;
     private int placesDisp;
@@ -27,6 +28,7 @@ public class EvenementDTO {
         this.placesDisp = evenement.getPlacesDisp();
         this.organisateurNom = evenement.getOrganisateur().getNom();
         this.imageUrl = evenement.getImageUrl();
+        this.ville = evenement.getVille();
     }
     public Integer getId() {
         return id;
@@ -75,6 +77,13 @@ public class EvenementDTO {
     }
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+    public String getVille() {
+        return ville;
+    }
+    public void setVille(String ville) {
+
+        this.ville = ville;
     }
 }
 
