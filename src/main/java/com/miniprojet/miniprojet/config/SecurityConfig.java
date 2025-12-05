@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/events/get-events", "/api/events/get-event-by-id/**", "/api/users/connexion","/error","/api/users/create-user").permitAll()
+                        .requestMatchers("/api/events/get-events", "/api/events/get-event-by-id/**", "/api/weather/**","/api/users/connexion","/error","/api/users/create-user").permitAll()
                         .requestMatchers("/api/events/**", "/api/reservations/**").authenticated()
                         .anyRequest().authenticated()//il necessite authetification jwt
                 )

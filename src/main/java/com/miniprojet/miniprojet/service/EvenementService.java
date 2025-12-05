@@ -57,6 +57,7 @@ public class EvenementService {
             updateEvent.setDate(newEvent.getDate());
             updateEvent.setPlacesDisp(newEvent.getPlacesDisp());
             updateEvent.setLieu(newEvent.getLieu());
+            updateEvent.setVille(newEvent.getVille());
             updateEvent.setDescription(newEvent.getDescription());
             updateEvent.setImageUrl(newEvent.getImageUrl());
             return evRep.save(updateEvent);
