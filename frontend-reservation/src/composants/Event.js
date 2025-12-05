@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axiosInstance from "./gestiontoken/token";
 import dayjs from "dayjs";
 import './css/Event.css';
 import { toast } from "react-toastify";
 
 function Event({ organisateurId }) {
-  // listevent
   const [listEvents, setListEvents] = useState([]);
+  const [editingEvent, setEditingEvent] = useState(null);
 
-  const [editingEvent, setEditingEvent] = useState(null); // Pour gérer l'événement en cours de modification
   const [formUpdateData, setformUpdateData] = useState({
     titre: "",
     lieu: "",
@@ -16,10 +15,10 @@ function Event({ organisateurId }) {
     placesDisp: "",
     description: "",
     imageUrl: "",
-  }); // Données du formulaire pour mise à jour
+    ville: "",
+  });
 
-  // ajout
-  const [addEvent, setAddEvent] = useState(false); // Pour afficher ou cacher le formulaire d'ajout d'event
+  const [addEvent, setAddEvent] = useState(false);
   const [formAjoutData, setformAjoutData] = useState({
     titre: "",
     lieu: "",
@@ -27,139 +26,121 @@ function Event({ organisateurId }) {
     placesDisp: "",
     description: "",
     imageUrl: "",
-  }); // Données pour un nouvel event
+    ville: "",
+  });
 
-  // searchMat
-  const [searchQueryTitle, setsearchQuerytitle] = useState(""); // Recherche par titre
+  const [searchQueryTitle, setsearchQuerytitle] = useState(""); 
+  const [weatherData, setWeatherData] = useState({});
 
-  // récupération des événements
+  const ListEvent = useCallback(async () => {
+    try {
+      const response = await axiosInstance("/api/events/get-events");
+      const events = Array.isArray(response.data) ? response.data : [];
+      setListEvents(events);
+
+      events.forEach(async (event) => {
+        if (event.ville) {
+          const weather = await fetchWeather(event.ville);
+          setWeatherData(prev => ({ ...prev, [event.id]: weather }));
+        }
+      });
+    } catch (error) {
+      console.error("Erreur lors de la récupération :", error);
+    }
+  }, []);
+
   useEffect(() => {
     ListEvent();
-  }, []);
+  }, [ListEvent]);
 
-  
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log("Mon token:", token);
-    if (token) {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      console.log("Payload JWT décodé:", payload);
+  async function fetchWeather(ville) {
+    try {
+      const response = await axiosInstance.get(`/api/weather/${ville}`);
+      return response.data;
+    } catch (error) {
+      console.error("Erreur météo :", error.response?.data || error.message);
+      return null;
     }
-  }, []);
-
- async function ListEvent() {
-  try {
-    const response = await axiosInstance("/api/events/get-events");
-    const events = response.data;
-
-    const validEvents = events.filter(e => typeof e === "object" && e !== null && "titre" in e);
-    setListEvents(validEvents);
-    console.log("Événements filtrés :", validEvents);
-  } catch (error) {
-    console.error("Erreur lors de la récupération :", error);
   }
-}
 
-  // Ajouter un event 
-async function ajouterEvent() {
-  try {
-    if (!formAjoutData.titre || !formAjoutData.date || !formAjoutData.lieu) {
-      toast.warning("Merci de remplir tous les champs obligatoires");
-      return;
+  async function ajouterEvent() {
+    try {
+      if (!formAjoutData.titre || !formAjoutData.date || !formAjoutData.lieu) {
+        toast.warning("Merci de remplir tous les champs obligatoires");
+        return;
+      }
+
+      const eventToSend = {
+        ...formAjoutData,
+        placesDisp: parseInt(formAjoutData.placesDisp, 10),
+        date: dayjs(formAjoutData.date).format("YYYY-MM-DDTHH:mm:ss"), // ajout des secondes
+      };
+
+      const response = await axiosInstance.post("/api/events/create-event", eventToSend);
+
+      if (response.status === 201) {
+        toast.success("Événement ajouté !");
+        setformAjoutData({
+          titre: "",
+          lieu: "",
+          date: "",
+          placesDisp: "",
+          description: "",
+          imageUrl: "",
+          ville: "",
+        });
+        setAddEvent(false);
+        ListEvent();
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ajout", error.response?.data || error.message);
+      toast.error("Erreur lors de l'ajout de l'événement !");
     }
+  } 
 
-    const eventToSend = {
-      titre: formAjoutData.titre,
-      description: formAjoutData.description,
-      lieu: formAjoutData.lieu,
-      placesDisp: parseInt(formAjoutData.placesDisp, 10),
-      date: dayjs(formAjoutData.date).format("YYYY-MM-DDTHH:mm"),
-      imageUrl: formAjoutData.imageUrl,
-    };
-
-    const response = await axiosInstance.post("/api/events/create-event", eventToSend);
-
-    if (response.status === 201) {
-      toast.success("Événement ajouté !");
-      setformAjoutData({
-        titre: "",
-        lieu: "",
-        date: "",
-        placesDisp: "",
-        description: "",
-        imageUrl: "",
-      });
-      setAddEvent(false);
-      ListEvent();
-    }
-  } catch (error) {
-    console.error("Erreur lors de l'ajout", error.response?.data || error.message);
-    toast.error("Erreur lors de l'ajout de l'événement !");
-  }
-} 
-
-  // Supprimer un event
   async function supprimerEvent(id) {
     try {
       await axiosInstance.delete(`/api/events/delete-event/${id}`);
       toast.success("Événement supprimé !");
-      ListEvent(); // Rafraîchir la liste après suppression
+      ListEvent(); 
     } catch (error) {
       console.log("Erreur suppression ", error);
     }
   }
 
-  // Remplir le formulaire de modification
   function modifierEvent(event) {
     setEditingEvent(event.id);
     setformUpdateData({
-  titre: event.titre || "",
-  lieu: event.lieu || "",
-  date: event.date || "",
-  placesDisp: event.placesDisp || "",
-  description: event.description || "",
-  imageUrl: event.imageUrl || "",
-});
+      ...event,
+      date: event.date ? dayjs(event.date).format("YYYY-MM-DDTHH:mm") : "",
+    });
   }
 
   async function validerModification(id) {
-  try {
-    console.log('ID:', id);
-
-    // Corrige le format de la date si nécessaire
-    const dateWithSeconds =
-      formUpdateData.date.length === 16
-        ? formUpdateData.date + ":00"
-        : formUpdateData.date;
-
-    const dataToSend = {
-      ...formUpdateData,
-      date: dateWithSeconds,
-    };
-
-    const response = await axiosInstance.put(`/api/events/update-event/${id}`, dataToSend);
-
-    if (response.status === 200) {
-      toast.success("Événement modifié !");
-      setEditingEvent(null);
-      ListEvent(); // Rafraîchir la liste après modification
+    try {
+      const dataToSend = {
+        ...formUpdateData,
+        date: dayjs(formUpdateData.date).format("YYYY-MM-DDTHH:mm:ss"), // backend veut secondes
+      };
+      const response = await axiosInstance.put(`/api/events/update-event/${id}`, dataToSend);
+      if (response.status === 200) {
+        toast.success("Événement modifié !");
+        setEditingEvent(null);
+        ListEvent();
+      }
+    } catch (error) {
+      console.log("Erreur modification ", error.response?.data || error.message);
     }
-  } catch (error) {
-    console.log("Erreur modification ", error);
   }
-}
 
-
-  // Recherche simple par titre
   const filteredEvents = listEvents.filter(
-  (e) => typeof e.titre === "string" && e.titre.toLowerCase().includes(searchQueryTitle.toLowerCase())
-);
+    (e) => typeof e.titre === "string" && e.titre.toLowerCase().includes(searchQueryTitle.toLowerCase())
+  );
 
   return (
     <div>
       <h2>Gestion des Événements</h2>
 
-      {/* Recherche */}
       <input
         type="text"
         placeholder="Rechercher par titre..."
@@ -167,12 +148,10 @@ async function ajouterEvent() {
         onChange={(e) => setsearchQuerytitle(e.target.value)}
       />
 
-      {/* Bouton pour afficher formulaire ajout */}
       <button onClick={() => setAddEvent(!addEvent)}>
         {addEvent ? "Annuler" : "Ajouter un événement"}
       </button>
 
-      {/* Formulaire ajout */}
       {addEvent && (
         <div>
           <h3>Ajouter un Événement</h3>
@@ -210,21 +189,21 @@ async function ajouterEvent() {
             value={formAjoutData.imageUrl}
             onChange={(e) => setformAjoutData({ ...formAjoutData, imageUrl: e.target.value })}
           />
-
+          <input
+            type="text"
+            placeholder="Ville"
+            value={formAjoutData.ville}
+            onChange={(e) => setformAjoutData({ ...formAjoutData, ville: e.target.value })}
+          />
           <button onClick={ajouterEvent}>Valider</button>
-
-
         </div>
       )}
 
-      {/* Liste des événements */}
       <h3>Liste des Événements</h3>
       {filteredEvents.map((event) => (
         <div key={event.id} style={{ border: "1px solid black", margin: "10px", padding: "10px" }}>
           {editingEvent === event.id ? (
-            // Formulaire modification
             <div>
-
               <input
                 type="text"
                 value={formUpdateData.titre}
@@ -237,7 +216,7 @@ async function ajouterEvent() {
               />
               <input
                 type="datetime-local"
-                value={dayjs(formUpdateData.date).format("YYYY-MM-DDTHH:mm:ss")}
+                value={formUpdateData.date}
                 onChange={(e) => setformUpdateData({ ...formUpdateData, date: e.target.value })}
               />
               <input
@@ -255,13 +234,17 @@ async function ajouterEvent() {
                 value={formUpdateData.imageUrl}
                 onChange={(e) => setformUpdateData({ ...formUpdateData, imageUrl: e.target.value })}
               />
+              <input
+                type="text"
+                placeholder="Ville"
+                value={formUpdateData.ville}
+                onChange={(e) => setformUpdateData({ ...formUpdateData, ville: e.target.value })}
+              />
               <button onClick={() => validerModification(event.id)}>Enregistrer</button>
               <button onClick={() => setEditingEvent(null)}>Annuler</button>
             </div>
           ) : (
-            // Affichage normal
             <div>
-              {console.log("Image URL de l'événement :", event.imageUrl)}
               {event.imageUrl && (
                 <div>
                   <img src={event.imageUrl} alt="Affiche événement" style={{ maxWidth: "300px", marginTop: "10px" }} />
@@ -269,9 +252,15 @@ async function ajouterEvent() {
               )}
               <p><strong>Titre :</strong> {event.titre}</p>
               <p><strong>Lieu :</strong> {event.lieu}</p>
-              <p><strong>Date :</strong> {dayjs(event.date).format("DD/MM/YYYY HH:mm")}</p>
+              <p><strong>Ville :</strong> {event.ville}</p>
+              <p><strong>Date :</strong> {dayjs(event.date).format("DD/MM/YYYY HH:mm:ss")}</p>
               <p><strong>Places disponibles :</strong> {event.placesDisp}</p>
               <p><strong>Description :</strong> {event.description}</p>
+
+              {weatherData[event.id] && (
+                <p><strong>Météo :</strong> {weatherData[event.id].description} à {weatherData[event.id].temp}°C</p>
+              )}
+
               <div>
                 <button onClick={() => modifierEvent(event)}>Modifier</button>
                 <button onClick={() => supprimerEvent(event.id)}>Supprimer</button>
